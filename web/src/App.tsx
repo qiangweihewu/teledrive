@@ -86,8 +86,11 @@ function App(): React.ReactElement {
   }, [])
 
   useEffect(() => {
-    if (localStorage.getItem('BASE_URL') && localStorage.getItem('BASE_URL') !== window.location.origin) {
-      window.location.replace(localStorage.getItem('BASE_URL') as string)
+    const url = localStorage.getItem('BASE_URL')
+    if (url && !/^http/.test(url) || /\/startup\?reset\=1/.test(window.location.href)) {
+      localStorage.removeItem('BASE_URL')
+    } else if (url && url !== window.location.origin) {
+      window.location.replace(url as string)
     }
   }, [])
 
@@ -120,7 +123,7 @@ function App(): React.ReactElement {
             }
           />
         </div> : <>
-          {!/^\/view\/.*/gi.test(window.location.pathname) && <Navbar user={me?.user} />}
+          {!/^\/view\/.*/gi.test(pathname) && <Navbar user={me?.user} />}
           <div style={{ minHeight: '88vh' }}>
             <Suspense fallback={<></>}>
               <Switch>
@@ -139,7 +142,7 @@ function App(): React.ReactElement {
               </Switch>
             </Suspense>
           </div>
-          {/^\/view\/.*/gi.test(window.location.pathname) ? <></> : <Footer me={me} />}
+          {/^\/view\/.*/gi.test(pathname) || /\/startup/.test(pathname) ? <></> : <Footer me={me} />}
         </>}
       </Layout>
     </LoadingScreen>
